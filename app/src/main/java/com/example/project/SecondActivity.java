@@ -25,7 +25,7 @@ public class SecondActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 storeUserData();
-                finish();
+               finish();
             }
         });
 

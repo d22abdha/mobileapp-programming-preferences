@@ -1,42 +1,168 @@
 
 # Rapport
 
-**Skriv din rapport här!**
+Först och främst har appen utvecklats med två aktiviteter. Den första aktiviteten används
+för att läsa data från SharedPreferences som har sparats tidigare för senare användning.
 
-_Du kan ta bort all text som finns sedan tidigare_.
+Dessutom har appen en ny aktivitet som heter SecondActivity för att organisera användargränssnittet 
+och möjliggöra navigering mellan olika skärmar.
 
-## Följande grundsyn gäller dugga-svar:
+I SecondActivity används ett EditText-element som tillåter användaren att mata in data. 
+Därefter sparas datan i appens SharedPreferences, som kan nås senare. När SecondActivity stängs kan 
+den sparade datan synas i MainActivity. Detta innebär att datan som sparats i SecondActivity kan nås
+från andra delar av appen.
 
-- Ett kortfattat svar är att föredra. Svar som är längre än en sida text (skärmdumpar och programkod exkluderat) är onödigt långt.
-- Svaret skall ha minst en snutt programkod.
-- Svaret skall inkludera en kort övergripande förklarande text som redogör för vad respektive snutt programkod gör eller som svarar på annan teorifråga.
-- Svaret skall ha minst en skärmdump. Skärmdumpar skall illustrera exekvering av relevant programkod. Eventuell text i skärmdumpar måste vara läsbar.
-- I de fall detta efterfrågas, dela upp delar av ditt svar i för- och nackdelar. Dina för- respektive nackdelar skall vara i form av punktlistor med kortare stycken (3-4 meningar).
+## Koden:
 
-Programkod ska se ut som exemplet nedan. Koden måste vara korrekt indenterad då den blir lättare att läsa vilket gör det lättare att hitta syntaktiska fel.
+
 
 ```
-function errorCallback(error) {
-    switch(error.code) {
-        case error.PERMISSION_DENIED:
-            // Geolocation API stöds inte, gör något
-            break;
-        case error.POSITION_UNAVAILABLE:
-            // Misslyckat positionsanrop, gör något
-            break;
-        case error.UNKNOWN_ERROR:
-            // Okänt fel, gör något
-            break;
+public class MainActivity extends AppCompatActivity {
+    private Button button;
+    private TextView sharedresult;
+    private final String key = String.valueOf(R.string.viewData);
+    private SharedPreferences myPreferenceRef;
+    private SharedPreferences.Editor myPreferenceEditor;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        button = findViewById(R.id.sendButton);
+        sharedresult = findViewById(R.id.textViewName);
+
+       myPreferenceRef = getPreferences(MODE_PRIVATE);
+        myPreferenceEditor = myPreferenceRef.edit();
+    button.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+
+            openSecondActivity();
+        }
+    });
+        }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("d22abdha", " startActivity");
+        String defaultValue = "Nothing has been shared.";
+        SharedPreferences sharedPref = getSharedPreferences(key, MODE_PRIVATE);
+        sharedresult.setText(sharedPref.getString(key, defaultValue));
+    }
+    public void openSecondActivity() {
+        Intent intent = new Intent(MainActivity.this, SecondActivity.class);
+        startActivity(intent);
+    }
+
+}
+
+```
+
+```
+ <TextView
+        android:id="@+id/textViewName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        android:textSize="18sp"
+        android:padding="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
+        app:layout_constraintVertical_bias="0.30" />
+
+
+    <Button
+        android:id="@+id/sendButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="write something new"
+        app:layout_constraintTop_toBottomOf="@id/textViewName"
+        app:layout_constraintStart_toStartOf="@id/textViewName"
+        app:layout_constraintEnd_toEndOf="@id/textViewName"/>
+```
+
+```
+public class SecondActivity extends AppCompatActivity {
+    private SharedPreferences sharedPreferences;
+    private final String key = String.valueOf(R.string.viewData);
+    private Button button;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_second);
+
+        sharedPreferences = getSharedPreferences(key, MODE_PRIVATE);
+
+        button = findViewById(R.id.sendButton);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                storeUserData();
+               finish();
+            }
+        });
+
+    }
+
+    private void storeUserData() {
+// Get the user input from the EditText view.
+        EditText userInputEditText = findViewById(R.id.viewinput);
+        String data = userInputEditText.getText().toString();
+
+// Get an instance of the SharedPreferences object and create an editor.
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+// Put the user input data into the editor with the given key.
+        editor.putString(key, data);
+        String key = "sharedPreferences";
+
+// Commit the changes to the SharedPreferences.
+        editor.apply();
     }
 }
 ```
+```
+ <EditText
+        android:id="@+id/viewinput"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="@string/input"
+        android:maxEms="20"
+        android:minEms="10"
+        android:textSize="24sp"
+        android:gravity="center_horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.19999999" />
 
-Bilder läggs i samma mapp som markdown-filen.
 
-![](android.png)
+    <Button
+        android:id="@+id/sendButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Click me"
+        app:layout_constraintEnd_toEndOf="@+id/viewinput"
+        app:layout_constraintStart_toStartOf="@+id/viewinput"
+        app:layout_constraintTop_toBottomOf="@+id/viewinput" />
+```
 
-Läs gärna:
+Bilder.
 
-- Boulos, M.N.K., Warren, J., Gong, J. & Yue, P. (2010) Web GIS in practice VIII: HTML5 and the canvas element for interactive online mapping. International journal of health geographics 9, 14. Shin, Y. &
-- Wunsche, B.C. (2013) A smartphone-based golf simulation exercise game for supporting arthritis patients. 2013 28th International Conference of Image and Vision Computing New Zealand (IVCNZ), IEEE, pp. 459–464.
-- Wohlin, C., Runeson, P., Höst, M., Ohlsson, M.C., Regnell, B., Wesslén, A. (2012) Experimentation in Software Engineering, Berlin, Heidelberg: Springer Berlin Heidelberg.
+![](Screenshot_20230504_190846.png)
+![](Screenshot_20230504_190940.png)
+![](Screenshot_20230504_191057.png)
+
+
+
+
